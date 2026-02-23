@@ -860,18 +860,20 @@ function submitEmail() {
     return;
   }
 
-  // Submit (non-blocking)
-  fetch('https://formspree.io/f/REPLACE_WITH_ENDPOINT', {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
-    body: JSON.stringify({
-      email,
-      archetype: getTopArchetype().id,
-      scores: JSON.stringify(scores),
-      source: 'decision-tree-engine',
-      ts: new Date().toISOString(),
-    })
-  }).catch(() => {});
+  // Submit — try Lux Life Rx API first, Formspree as fallback
+  const payload = JSON.stringify({
+    email,
+    archetype: getTopArchetype().id,
+    scores: JSON.stringify(scores),
+    source: 'decision-tree-engine',
+    ts: new Date().toISOString(),
+  });
+  const headers = { 'Content-Type': 'application/json', Accept: 'application/json' };
+  fetch('https://luxliferx.com/api/subscribe', { method: 'POST', headers, body: payload })
+    .then(r => { if (!r.ok) throw new Error(); })
+    .catch(() => {
+      fetch('https://formspree.io/f/REPLACE_WITH_ENDPOINT', { method: 'POST', headers, body: payload }).catch(() => {});
+    });
 
   showResult(email);
 }
