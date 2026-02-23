@@ -1,0 +1,964 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Find Your Path — Decision Intelligence Assessment</title>
+  <meta name="description" content="A 20-question assessment that maps your personality, skills, and drive to the opportunity paths most likely to create meaning and financial freedom for you." />
+  <meta property="og:title" content="Find Your Path — What should you actually be building?" />
+  <meta property="og:description" content="20 questions. 5 archetypes. Your highest-leverage opportunity — mapped." />
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Playfair+Display:wght@700;800&display=swap" rel="stylesheet" />
+
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg:       #0A0C12;
+      --card:     #111520;
+      --border:   rgba(255,255,255,0.07);
+      --text:     #EEF0F8;
+      --muted:    #7A859A;
+      --gold:     #C8A84B;
+      --gold-l:   #E2C06A;
+      --teal:     #4A8D9C;
+      --green:    #34C77B;
+      --purple:   #8B72BE;
+    }
+
+    html { scroll-behavior: smooth; }
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: 'Inter', sans-serif;
+      min-height: 100vh;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    /* ── Layout shells ─────────────────────────────────────────────── */
+    #screen-intro,
+    #screen-quiz,
+    #screen-result,
+    #screen-email {
+      display: none;
+      min-height: 100vh;
+      padding: 40px 24px;
+      align-items: center;
+      justify-content: center;
+      flex-direction: column;
+    }
+    .active { display: flex !important; }
+
+    .card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      padding: 40px;
+      width: 100%;
+      max-width: 640px;
+    }
+
+    /* ── Typography ─────────────────────────────────────────────────── */
+    .eyebrow {
+      font-size: 0.7rem;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      color: var(--gold);
+      font-weight: 600;
+      margin-bottom: 16px;
+    }
+    h1 {
+      font-family: 'Playfair Display', serif;
+      font-size: clamp(1.9rem, 5vw, 2.8rem);
+      line-height: 1.2;
+      font-weight: 800;
+      margin-bottom: 18px;
+    }
+    h2 {
+      font-family: 'Playfair Display', serif;
+      font-size: clamp(1.4rem, 3vw, 1.9rem);
+      font-weight: 700;
+      margin-bottom: 12px;
+    }
+    .lead {
+      color: var(--muted);
+      line-height: 1.75;
+      margin-bottom: 32px;
+      font-size: 1rem;
+    }
+
+    /* ── Buttons ─────────────────────────────────────────────────────── */
+    .btn {
+      display: inline-block;
+      background: var(--gold);
+      color: #0A0C12;
+      font-weight: 700;
+      font-size: 0.92rem;
+      padding: 15px 32px;
+      border-radius: 10px;
+      border: none;
+      cursor: pointer;
+      transition: background 0.2s, transform 0.1s;
+      text-decoration: none;
+    }
+    .btn:hover { background: var(--gold-l); transform: translateY(-1px); }
+    .btn:active { transform: translateY(0); }
+    .btn-ghost {
+      background: transparent;
+      border: 1px solid var(--border);
+      color: var(--muted);
+      font-size: 0.82rem;
+      padding: 10px 20px;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: border-color 0.2s, color 0.2s;
+    }
+    .btn-ghost:hover { border-color: var(--muted); color: var(--text); }
+
+    /* ── Intro screen ─────────────────────────────────────────────────── */
+    .intro-promise {
+      background: rgba(201,168,75,0.07);
+      border: 1px solid rgba(201,168,75,0.2);
+      border-radius: 12px;
+      padding: 18px 22px;
+      margin-bottom: 28px;
+    }
+    .intro-promise p { font-size: 0.88rem; color: rgba(238,240,248,0.7); line-height: 1.6; }
+    .intro-meta { display: flex; gap: 24px; margin-bottom: 32px; flex-wrap: wrap; }
+    .intro-meta-item { display: flex; align-items: center; gap: 8px; font-size: 0.82rem; color: var(--muted); }
+    .intro-meta-item span.dot { width: 6px; height: 6px; border-radius: 50%; background: var(--gold); flex-shrink: 0; }
+
+    /* ── Progress bar ─────────────────────────────────────────────────── */
+    .progress-wrap { margin-bottom: 28px; }
+    .progress-info { display: flex; justify-content: space-between; font-size: 0.75rem; color: var(--muted); margin-bottom: 8px; }
+    .progress-bar { height: 3px; background: rgba(255,255,255,0.06); border-radius: 100px; overflow: hidden; }
+    .progress-fill { height: 100%; background: var(--gold); border-radius: 100px; transition: width 0.4s ease; }
+
+    /* ── Question ─────────────────────────────────────────────────────── */
+    .question-num { font-size: 0.7rem; letter-spacing: 0.1em; text-transform: uppercase; color: var(--muted); margin-bottom: 10px; }
+    .question-text { font-size: 1.1rem; font-weight: 500; line-height: 1.55; margin-bottom: 24px; color: var(--text); }
+
+    .options { display: flex; flex-direction: column; gap: 10px; }
+    .option {
+      background: rgba(255,255,255,0.03);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 14px 18px;
+      cursor: pointer;
+      font-size: 0.9rem;
+      color: rgba(238,240,248,0.8);
+      transition: border-color 0.18s, background 0.18s, color 0.18s;
+      text-align: left;
+      position: relative;
+    }
+    .option:hover { border-color: rgba(201,168,75,0.4); background: rgba(201,168,75,0.05); color: var(--text); }
+    .option.selected {
+      border-color: var(--gold);
+      background: rgba(201,168,75,0.1);
+      color: var(--text);
+    }
+    .option.selected::after {
+      content: '✓';
+      position: absolute; right: 16px; top: 50%; transform: translateY(-50%);
+      color: var(--gold); font-weight: 700;
+    }
+
+    .quiz-nav { display: flex; justify-content: space-between; align-items: center; margin-top: 28px; }
+
+    /* ── Result screen ─────────────────────────────────────────────────── */
+    .result-header {
+      border-radius: 20px 20px 0 0;
+      padding: 36px 40px 28px;
+      margin: -40px -40px 0;
+      margin-bottom: 28px;
+    }
+    .result-badge {
+      display: inline-block;
+      font-size: 0.7rem;
+      font-weight: 700;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      padding: 5px 14px;
+      border-radius: 100px;
+      margin-bottom: 14px;
+    }
+    .archetype-name {
+      font-family: 'Playfair Display', serif;
+      font-size: 2rem;
+      font-weight: 800;
+      margin-bottom: 8px;
+    }
+    .archetype-tagline { font-size: 0.95rem; opacity: 0.75; line-height: 1.5; }
+
+    .result-section { margin-bottom: 24px; }
+    .result-section h4 {
+      font-size: 0.68rem;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--muted);
+      margin-bottom: 12px;
+      font-weight: 600;
+    }
+    .result-section p { color: rgba(238,240,248,0.75); font-size: 0.9rem; line-height: 1.7; }
+
+    .paths-list { list-style: none; display: flex; flex-direction: column; gap: 8px; }
+    .paths-list li {
+      display: flex; align-items: flex-start; gap: 10px;
+      font-size: 0.88rem; color: rgba(238,240,248,0.8); line-height: 1.5;
+    }
+    .paths-list li::before { content: '→'; color: var(--gold); flex-shrink: 0; font-weight: 600; }
+
+    .traits-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+    .trait-pill {
+      background: rgba(255,255,255,0.04);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 8px 12px;
+      font-size: 0.8rem;
+      color: var(--muted);
+    }
+    .trait-pill span { display: block; font-weight: 600; color: var(--text); font-size: 0.88rem; margin-bottom: 2px; }
+
+    .action-plan {
+      background: rgba(201,168,75,0.06);
+      border: 1px solid rgba(201,168,75,0.15);
+      border-radius: 12px;
+      padding: 20px;
+    }
+    .action-plan h4 { color: var(--gold); margin-bottom: 12px; font-size: 0.75rem; letter-spacing: 0.1em; text-transform: uppercase; font-weight: 700; }
+    .action-plan ol { list-style: decimal; padding-left: 18px; }
+    .action-plan ol li { font-size: 0.88rem; color: rgba(238,240,248,0.75); line-height: 1.6; margin-bottom: 6px; }
+
+    .score-bars { display: flex; flex-direction: column; gap: 10px; }
+    .score-row { display: flex; align-items: center; gap: 12px; font-size: 0.8rem; }
+    .score-label { width: 80px; color: var(--muted); flex-shrink: 0; }
+    .score-track { flex: 1; height: 6px; background: rgba(255,255,255,0.06); border-radius: 100px; overflow: hidden; }
+    .score-bar-fill { height: 100%; border-radius: 100px; }
+    .score-val { width: 28px; text-align: right; color: var(--text); font-weight: 500; font-size: 0.78rem; }
+
+    /* ── Email screen ─────────────────────────────────────────────────── */
+    .email-input {
+      width: 100%;
+      background: rgba(255,255,255,0.04);
+      border: 1px solid var(--border);
+      color: var(--text);
+      padding: 14px 18px;
+      border-radius: 10px;
+      font-size: 0.95rem;
+      outline: none;
+      margin-bottom: 12px;
+      transition: border-color 0.2s;
+      font-family: 'Inter', sans-serif;
+    }
+    .email-input:focus { border-color: var(--gold); }
+    .email-input::placeholder { color: var(--muted); }
+    .skip-link { color: var(--muted); font-size: 0.78rem; cursor: pointer; text-decoration: underline; margin-top: 12px; display: inline-block; }
+    .skip-link:hover { color: var(--text); }
+
+    /* ── Archetype colours ─────────────────────────────────────────────── */
+    .arch-architect .result-header { background: linear-gradient(135deg, #1a2438 0%, #253550 100%); }
+    .arch-architect .result-badge { background: rgba(74,141,156,0.2); color: var(--teal); }
+    .arch-architect .score-bar-fill:nth-child(1) { background: var(--teal); }
+
+    .arch-operator .result-header { background: linear-gradient(135deg, #1a2018 0%, #253025 100%); }
+    .arch-operator .result-badge { background: rgba(52,199,123,0.15); color: var(--green); }
+
+    .arch-catalyst .result-header { background: linear-gradient(135deg, #1e1428 0%, #2d1e40 100%); }
+    .arch-catalyst .result-badge { background: rgba(139,114,190,0.15); color: var(--purple); }
+
+    .arch-explorer .result-header { background: linear-gradient(135deg, #1e1810 0%, #302816 100%); }
+    .arch-explorer .result-badge { background: rgba(201,168,75,0.12); color: var(--gold); }
+
+    .arch-steward .result-header { background: linear-gradient(135deg, #141820 0%, #1e2530 100%); }
+    .arch-steward .result-badge { background: rgba(100,120,160,0.15); color: #8EB5D5; }
+  </style>
+</head>
+<body>
+
+<!-- ══════════ SCREEN: INTRO ══════════ -->
+<div id="screen-intro" class="active">
+  <div class="card">
+    <p class="eyebrow">Decision Intelligence Assessment</p>
+    <h1>What should you actually be building?</h1>
+
+    <div class="intro-promise">
+      <p>
+        Most people optimise for the wrong thing — not because they're not trying, but because
+        they're using someone else's map. This assessment doesn't tell you what to do.
+        It identifies the terrain where your natural wiring creates the most leverage.
+      </p>
+    </div>
+
+    <div class="intro-meta">
+      <span class="intro-meta-item"><span class="dot"></span> 20 questions</span>
+      <span class="intro-meta-item"><span class="dot"></span> ~6 minutes</span>
+      <span class="intro-meta-item"><span class="dot"></span> 5 archetypes</span>
+      <span class="intro-meta-item"><span class="dot"></span> No login required</span>
+    </div>
+
+    <p class="lead">
+      There's no right or wrong result. There's only the one that's honest — and what you do with it.
+    </p>
+
+    <button class="btn" onclick="startQuiz()">Begin Assessment →</button>
+  </div>
+</div>
+
+<!-- ══════════ SCREEN: QUIZ ══════════ -->
+<div id="screen-quiz">
+  <div class="card">
+    <div class="progress-wrap">
+      <div class="progress-info">
+        <span id="q-label">Question 1 of 20</span>
+        <span id="q-pct">0%</span>
+      </div>
+      <div class="progress-bar">
+        <div class="progress-fill" id="progress-fill" style="width:0%"></div>
+      </div>
+    </div>
+
+    <div class="question-num" id="q-num">01</div>
+    <div class="question-text" id="q-text"></div>
+    <div class="options" id="q-options"></div>
+
+    <div class="quiz-nav">
+      <button class="btn-ghost" id="btn-back" onclick="goBack()">← Back</button>
+      <button class="btn" id="btn-next" onclick="goNext()" style="opacity:0.4;pointer-events:none">Next →</button>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════ SCREEN: EMAIL ══════════ -->
+<div id="screen-email">
+  <div class="card" style="text-align:center">
+    <p class="eyebrow">One last step</p>
+    <h2>Your archetype is ready.</h2>
+    <p class="lead" style="margin-bottom:24px;">
+      Enter your email to unlock your full result — including your top opportunity paths,
+      action plan, and a resource guide matched to your archetype.
+    </p>
+    <input type="email" id="email-input" class="email-input" placeholder="your@email.com" autocomplete="email" />
+    <button class="btn" style="width:100%" onclick="submitEmail()">Reveal My Archetype →</button>
+    <br />
+    <span class="skip-link" onclick="showResult(null)">Skip — show my result anyway</span>
+    <p style="color:var(--muted);font-size:0.72rem;margin-top:14px;">No spam. Just your result and occasional insights.</p>
+  </div>
+</div>
+
+<!-- ══════════ SCREEN: RESULT ══════════ -->
+<div id="screen-result">
+  <div class="card" id="result-card">
+    <!-- dynamically populated -->
+  </div>
+  <div style="margin-top:20px;text-align:center">
+    <button class="btn-ghost" onclick="restartQuiz()" style="margin-right:12px">Retake Assessment</button>
+    <a href="https://g-hunterai.github.io/quantum-nova-landing/" class="btn" target="_blank" style="font-size:0.82rem;padding:12px 22px;">
+      Explore Quantum Nova →
+    </a>
+  </div>
+</div>
+
+<script>
+// ══════════════════════════════════════════════════════════════
+// QUESTIONS
+// Scoring keys: AR=Architect, OP=Operator, CA=Catalyst, EX=Explorer, ST=Steward
+// Each answer awards points to one or two archetypes
+// ══════════════════════════════════════════════════════════════
+
+const QUESTIONS = [
+  {
+    text: "When you're given a complex problem, your instinct is to...",
+    options: [
+      { text: "Map out the entire system before touching anything", scores: { AR: 3 } },
+      { text: "Identify the highest-leverage point and act immediately", scores: { OP: 3 } },
+      { text: "Talk to the people affected — their experience reveals the real problem", scores: { CA: 3 } },
+      { text: "Look for the unconventional angle everyone else is missing", scores: { EX: 3 } },
+      { text: "Research how others have solved this before — learn from history", scores: { ST: 3 } },
+    ]
+  },
+  {
+    text: "The work that energises you most is...",
+    options: [
+      { text: "Designing systems that run without you", scores: { AR: 3 } },
+      { text: "Executing well and hitting precise targets", scores: { OP: 3 } },
+      { text: "Moving people toward something better", scores: { CA: 3 } },
+      { text: "Discovering things that weren't known before", scores: { EX: 3 } },
+      { text: "Preserving and transmitting wisdom across time", scores: { ST: 3 } },
+    ]
+  },
+  {
+    text: "When you imagine financial freedom, it looks like...",
+    options: [
+      { text: "A portfolio of systems generating income while I think", scores: { AR: 2, EX: 1 } },
+      { text: "A highly profitable, well-run operation I'm proud of", scores: { OP: 2, AR: 1 } },
+      { text: "Making enough that I can give my time to what matters", scores: { CA: 2, ST: 1 } },
+      { text: "The runway to pursue whatever I'm obsessed with next", scores: { EX: 2, CA: 1 } },
+      { text: "Stability that lets me go deep on things of lasting value", scores: { ST: 3 } },
+    ]
+  },
+  {
+    text: "In a group setting, you most naturally...",
+    options: [
+      { text: "See the structural problem the group can't see", scores: { AR: 3 } },
+      { text: "Take ownership of execution when things stall", scores: { OP: 3 } },
+      { text: "Read the room and shift the energy when needed", scores: { CA: 3 } },
+      { text: "Ask the question that makes everyone pause", scores: { EX: 3 } },
+      { text: "Connect ideas from different domains that others missed", scores: { ST: 2, EX: 1 } },
+    ]
+  },
+  {
+    text: "Your relationship with rules is...",
+    options: [
+      { text: "I create better systems to replace the broken ones", scores: { AR: 2, EX: 1 } },
+      { text: "Rules exist for efficiency — I follow what works", scores: { OP: 3 } },
+      { text: "I work within rules but always toward the human outcome", scores: { CA: 2, ST: 1 } },
+      { text: "I question every rule — most were made for different conditions", scores: { EX: 3 } },
+      { text: "Some rules are there for deep reasons — I respect that", scores: { ST: 3 } },
+    ]
+  },
+  {
+    text: "The biggest risk you see in your own thinking is...",
+    options: [
+      { text: "Over-engineering — making things more complex than they need to be", scores: { AR: 3 } },
+      { text: "Being so execution-focused I miss the bigger picture", scores: { OP: 3 } },
+      { text: "Letting emotion or relationships cloud my judgment", scores: { CA: 3 } },
+      { text: "Chasing novelty and abandoning things before they compound", scores: { EX: 3 } },
+      { text: "Being so anchored in the past I resist necessary change", scores: { ST: 3 } },
+    ]
+  },
+  {
+    text: "Which of these describes your energy cycle?",
+    options: [
+      { text: "Long, focused bursts on one complex problem", scores: { AR: 2, ST: 1 } },
+      { text: "High output, task completion, visible progress", scores: { OP: 3 } },
+      { text: "Energised by connection, drained by isolation", scores: { CA: 3 } },
+      { text: "Scattered across many threads but eventually brilliant", scores: { EX: 3 } },
+      { text: "Slow, deep, patient — I work on decade timescales", scores: { ST: 3 } },
+    ]
+  },
+  {
+    text: "When something isn't working, your first move is...",
+    options: [
+      { text: "Diagnose the structural flaw in the system", scores: { AR: 3 } },
+      { text: "Find the bottleneck and remove it", scores: { OP: 3 } },
+      { text: "Have a conversation — the problem is usually relational", scores: { CA: 3 } },
+      { text: "Abandon the approach entirely and find a different angle", scores: { EX: 2, AR: 1 } },
+      { text: "Go back to first principles — why did we start here?", scores: { ST: 2, AR: 1 } },
+    ]
+  },
+  {
+    text: "The best version of success for you involves...",
+    options: [
+      { text: "Something I built still running decades after I'm gone", scores: { AR: 2, ST: 1 } },
+      { text: "Having built something excellent and moved on", scores: { OP: 2, EX: 1 } },
+      { text: "People whose lives are genuinely different because of me", scores: { CA: 3 } },
+      { text: "Discoveries or ideas that changed how people see things", scores: { EX: 2, ST: 1 } },
+      { text: "A body of work that accumulates meaning over time", scores: { ST: 3 } },
+    ]
+  },
+  {
+    text: "Which environment brings out your best work?",
+    options: [
+      { text: "Quiet, structured, with clear inputs and outputs", scores: { AR: 2, ST: 1 } },
+      { text: "Fast-moving, with clear accountability", scores: { OP: 3 } },
+      { text: "Dynamic, social, with real stakes for real people", scores: { CA: 3 } },
+      { text: "Unstructured, with permission to pursue any thread", scores: { EX: 3 } },
+      { text: "Slow and protected — good work requires unhurried time", scores: { ST: 3 } },
+    ]
+  },
+  {
+    text: "Your honest relationship with money is...",
+    options: [
+      { text: "A resource to be deployed into well-designed systems", scores: { AR: 3 } },
+      { text: "A direct measure of how well I'm executing", scores: { OP: 2, AR: 1 } },
+      { text: "Necessary — but not the point", scores: { CA: 2, ST: 1 } },
+      { text: "Fuel for the next experiment or obsession", scores: { EX: 3 } },
+      { text: "Security that protects the work from compromises", scores: { ST: 2, CA: 1 } },
+    ]
+  },
+  {
+    text: "Your most natural leadership style is...",
+    options: [
+      { text: "Architect: I design the structure and let others operate it", scores: { AR: 3 } },
+      { text: "Commander: I set the standard and lead from the front", scores: { OP: 3 } },
+      { text: "Coach: I draw the best out of people and build alignment", scores: { CA: 3 } },
+      { text: "Catalyst: I surface new possibilities others can't see yet", scores: { EX: 3 } },
+      { text: "Elder: I hold context, wisdom, and long-term perspective", scores: { ST: 3 } },
+    ]
+  },
+  {
+    text: "When a new opportunity appears, your first filter is...",
+    options: [
+      { text: "Does this have a scalable, defensible structure?", scores: { AR: 3 } },
+      { text: "Can I execute this with excellence and profit from it?", scores: { OP: 3 } },
+      { text: "Who does this serve and how much do they need it?", scores: { CA: 3 } },
+      { text: "Is this different from what exists? Does it unlock something new?", scores: { EX: 3 } },
+      { text: "Is this worth my long-term attention? Will it matter in 20 years?", scores: { ST: 3 } },
+    ]
+  },
+  {
+    text: "Which of these books would you most likely read first?",
+    options: [
+      { text: "Zero to One — building something unprecedented", scores: { AR: 1, EX: 2 } },
+      { text: "The E-Myth Revisited — building systems that scale", scores: { AR: 2, OP: 1 } },
+      { text: "Start with Why — purpose-driven leadership", scores: { CA: 2, ST: 1 } },
+      { text: "The Structure of Scientific Revolutions — paradigm shifts", scores: { EX: 2, ST: 1 } },
+      { text: "Meditations — ancient wisdom applied to modern life", scores: { ST: 3 } },
+    ]
+  },
+  {
+    text: "Your most common complaint about how you spend your time is...",
+    options: [
+      { text: "I'm too deep in operations to think at the systems level", scores: { AR: 3 } },
+      { text: "Too much strategy, not enough execution", scores: { OP: 3 } },
+      { text: "I'm not spending enough time on the humans involved", scores: { CA: 3 } },
+      { text: "The process is too rigid — I'm not free to explore", scores: { EX: 3 } },
+      { text: "Everything is too urgent — I have no time for depth", scores: { ST: 3 } },
+    ]
+  },
+  {
+    text: "The phrase that resonates most with how you work is...",
+    options: [
+      { text: "\"If you can't describe it as a process, you don't understand it\"", scores: { AR: 3 } },
+      { text: "\"Ideas are worthless without execution\"", scores: { OP: 3 } },
+      { text: "\"The quality of your relationships determines the quality of your life\"", scores: { CA: 3 } },
+      { text: "\"The reasonable person adapts to the world; progress comes from the unreasonable one\"", scores: { EX: 3 } },
+      { text: "\"Slow is smooth, smooth is fast\"", scores: { ST: 2, AR: 1 } },
+    ]
+  },
+  {
+    text: "What does a \"good day of work\" look like for you?",
+    options: [
+      { text: "I solved a design problem that will save 1,000 hours over the next year", scores: { AR: 3 } },
+      { text: "I shipped something, hit the number, closed the deal", scores: { OP: 3 } },
+      { text: "I had a conversation that genuinely shifted someone's trajectory", scores: { CA: 3 } },
+      { text: "I found a connection or insight I'd never seen before", scores: { EX: 3 } },
+      { text: "I produced something that will still be relevant in a decade", scores: { ST: 3 } },
+    ]
+  },
+  {
+    text: "When you think about the legacy you want to leave...",
+    options: [
+      { text: "Systems and institutions still running long after me", scores: { AR: 3 } },
+      { text: "A track record of excellence that speaks for itself", scores: { OP: 2, AR: 1 } },
+      { text: "People who became more themselves because of our connection", scores: { CA: 3 } },
+      { text: "Ideas that changed how people understand the world", scores: { EX: 2, ST: 1 } },
+      { text: "A body of work that grows more valuable over time", scores: { ST: 3 } },
+    ]
+  },
+  {
+    text: "Which challenge excites you most right now?",
+    options: [
+      { text: "Building infrastructure or systems that compound", scores: { AR: 3 } },
+      { text: "Growing a business, hitting targets, scaling operations", scores: { OP: 3 } },
+      { text: "Building a movement or community around something that matters", scores: { CA: 3 } },
+      { text: "Exploring a new domain or emerging field at its edge", scores: { EX: 3 } },
+      { text: "Writing, teaching, or transmitting hard-earned understanding", scores: { ST: 3 } },
+    ]
+  },
+  {
+    text: "The tension you live with most is...",
+    options: [
+      { text: "I want the machine to be perfect before I launch it", scores: { AR: 3 } },
+      { text: "I want to move faster but quality matters too much to cut corners", scores: { OP: 3 } },
+      { text: "I give too much to others and not enough to my own work", scores: { CA: 3 } },
+      { text: "I start things brilliantly but struggle to finish them", scores: { EX: 3 } },
+      { text: "I see what matters long-term but the short-term world doesn't reward patience", scores: { ST: 3 } },
+    ]
+  },
+];
+
+// ══════════════════════════════════════════════════════════════
+// ARCHETYPES
+// ══════════════════════════════════════════════════════════════
+const ARCHETYPES = {
+  AR: {
+    id: 'architect',
+    name: 'The Architect',
+    tagline: 'You build systems that work without you.',
+    icon: '🏛️',
+    colorClass: 'arch-architect',
+    badgeColor: 'var(--teal)',
+    description: `You think in systems. Where others see a task, you see a process. Where others see a problem, you see a structural flaw. Your natural leverage is not in doing more — it's in designing better. When you solve something, you solve it permanently.
+
+The Architect's superpower is scalability: everything you build has the potential to run at 10x with the same inputs. The risk is over-engineering — getting lost in perfection at the expense of shipping.`,
+    paths: [
+      'SaaS or software tools that automate recurring human problems',
+      'Algorithmic or systematic trading systems (data → signal → execution)',
+      'Licensing frameworks, processes, or IP to other operators',
+      'Infrastructure businesses: platforms, marketplaces, protocols',
+      'Organizational design consulting for complex, broken systems',
+    ],
+    traits: [
+      { label: 'Thinking', value: 'Systems-first' },
+      { label: 'Strength', value: 'Scalable design' },
+      { label: 'Risk', value: 'Paralysis by perfection' },
+      { label: 'Pace', value: 'Methodical' },
+    ],
+    action: [
+      'Document the single recurring bottleneck in your current work — then design a system to eliminate it permanently',
+      'Identify one thing you do manually every week that could run without you in 30 days',
+      'Sketch the structure of your ideal "autonomous income engine" — what are the 5 components?',
+      'Find one operator who needs what you can architect — that\'s your first client or co-founder',
+    ],
+    scoreBars: [
+      { label: 'Systems', pct: 95, color: '#4A8D9C' },
+      { label: 'Execution', pct: 55, color: '#34C77B' },
+      { label: 'People', pct: 40, color: '#8B72BE' },
+      { label: 'Discovery', pct: 65, color: '#C8A84B' },
+      { label: 'Depth', pct: 70, color: '#8EB5D5' },
+    ],
+  },
+  OP: {
+    id: 'operator',
+    name: 'The Operator',
+    tagline: 'You turn strategy into results.',
+    icon: '⚙️',
+    colorClass: 'arch-operator',
+    badgeColor: 'var(--green)',
+    description: `You are the rarest thing in any room: someone who can both understand what needs to happen and actually make it happen. While others debate, you've already started. While others plan the perfect launch, you've already shipped version one.
+
+The Operator's superpower is execution velocity — you make more decisions per day than most people make per month, and you have the discipline to make most of them right. The risk is shortsightedness: moving so fast that you optimise for this quarter at the expense of next decade.`,
+    paths: [
+      'High-performance sales, negotiation, or deal-making at scale',
+      'Operations leadership in high-growth companies or startups',
+      'Business acquisition: buy, fix, scale, exit underperforming companies',
+      'Franchise or licensing operation with standardised excellence',
+      'Professional services (consulting, advisory) where delivery matters',
+    ],
+    traits: [
+      { label: 'Thinking', value: 'Output-first' },
+      { label: 'Strength', value: 'Execution speed' },
+      { label: 'Risk', value: 'Missing the forest' },
+      { label: 'Pace', value: 'Fast' },
+    ],
+    action: [
+      'Identify the three highest-leverage revenue actions in your current business — cut everything else for 90 days',
+      'Find a business or deal within your competence that\'s underperforming due to execution gaps — that\'s your next opportunity',
+      'Build a simple scorecard: 5 KPIs that tell you if this week was a win or not',
+      'Pair with an Architect — your execution needs their system, their system needs your drive',
+    ],
+    scoreBars: [
+      { label: 'Systems', pct: 55, color: '#4A8D9C' },
+      { label: 'Execution', pct: 95, color: '#34C77B' },
+      { label: 'People', pct: 65, color: '#8B72BE' },
+      { label: 'Discovery', pct: 40, color: '#C8A84B' },
+      { label: 'Depth', pct: 50, color: '#8EB5D5' },
+    ],
+  },
+  CA: {
+    id: 'catalyst',
+    name: 'The Catalyst',
+    tagline: 'You move people toward better.',
+    icon: '🔥',
+    colorClass: 'arch-catalyst',
+    badgeColor: 'var(--purple)',
+    description: `You understand people at a level that most can't access. You feel what's in the room before it's spoken. You know what someone needs to hear before they ask for it. And when you speak, things shift.
+
+The Catalyst's superpower is human leverage — your ability to create alignment, trust, and momentum in people is a multiplier on everything else. The risk is giving too much: burning yourself out in service of others, or letting your skill with people substitute for the hard structural work a business requires.`,
+    paths: [
+      'High-trust professional services: coaching, consulting, therapy-adjacent',
+      'Community building, events, or membership businesses',
+      'Content creation and education with genuine audience relationships',
+      'Sales leadership: not selling, but teaching people to sell with integrity',
+      'Non-profit or social enterprise leadership with real accountability',
+    ],
+    traits: [
+      { label: 'Thinking', value: 'People-first' },
+      { label: 'Strength', value: 'Human leverage' },
+      { label: 'Risk', value: 'Over-giving' },
+      { label: 'Pace', value: 'Relational' },
+    ],
+    action: [
+      'Identify the 10 people in your network whose lives you\'ve most changed — what did you do? That\'s your product',
+      'Build something small (a workshop, a group, a newsletter) for the exact person you most want to serve',
+      'Set a boundary: one thing you\'ll stop doing for free that people have been getting for free',
+      'Pair with an Architect or Operator who can build the structure around your relationship skill',
+    ],
+    scoreBars: [
+      { label: 'Systems', pct: 40, color: '#4A8D9C' },
+      { label: 'Execution', pct: 60, color: '#34C77B' },
+      { label: 'People', pct: 95, color: '#8B72BE' },
+      { label: 'Discovery', pct: 55, color: '#C8A84B' },
+      { label: 'Depth', pct: 65, color: '#8EB5D5' },
+    ],
+  },
+  EX: {
+    id: 'explorer',
+    name: 'The Explorer',
+    tagline: 'You find what others can\'t see yet.',
+    icon: '🧭',
+    colorClass: 'arch-explorer',
+    badgeColor: 'var(--gold)',
+    description: `You live at the edge of things. You're drawn to what's emerging, what's misunderstood, what's about to change. Your pattern recognition across domains is extraordinary — you see connections between things that don't appear connected until you point to them.
+
+The Explorer's superpower is early signal: you consistently arrive before others in spaces that will matter. The risk is restlessness — moving on before the work compounds, letting "interesting" substitute for "complete."`,
+    paths: [
+      'Early-stage investing, scouting, or venture building in emerging sectors',
+      'Research-to-product translation: turning insights into tools',
+      'Contrarian media or intellectual property that challenges dominant narratives',
+      'Emerging technology adoption consulting for risk-averse organisations',
+      'Multi-disciplinary creative work (music, writing, film) that bridges domains',
+    ],
+    traits: [
+      { label: 'Thinking', value: 'Edge-seeking' },
+      { label: 'Strength', value: 'Early signal' },
+      { label: 'Risk', value: 'Leaving too soon' },
+      { label: 'Pace', value: 'Variable' },
+    ],
+    action: [
+      'Identify the one emerging space you\'ve been studying for 2+ years — you\'re already ahead, start there',
+      'Choose the single best idea you\'ve abandoned too early — revisit it for 30 days',
+      'Write the 1,000-word contrarian take you\'ve been afraid to publish — publish it',
+      'Pair with an Operator who can execute on your ideas and hold you accountable to finishing',
+    ],
+    scoreBars: [
+      { label: 'Systems', pct: 50, color: '#4A8D9C' },
+      { label: 'Execution', pct: 45, color: '#34C77B' },
+      { label: 'People', pct: 55, color: '#8B72BE' },
+      { label: 'Discovery', pct: 95, color: '#C8A84B' },
+      { label: 'Depth', pct: 70, color: '#8EB5D5' },
+    ],
+  },
+  ST: {
+    id: 'steward',
+    name: 'The Steward',
+    tagline: 'You build things that outlast you.',
+    icon: '🌳',
+    colorClass: 'arch-steward',
+    badgeColor: '#8EB5D5',
+    description: `You think in decades. While others optimise for this quarter, you're asking what will still be true in twenty years. You take accumulated knowledge seriously — you honour what was earned before you and contribute to what will be available after you.
+
+The Steward's superpower is compounding: your work, your relationships, and your reputation accumulate interest over time that others can't access. The risk is undervaluing the present — moving so slowly that relevance passes you by, or confusing patience with avoidance.`,
+    paths: [
+      'Long-form writing, publishing, or intellectual work with lasting value',
+      'Education, curriculum design, or institution building',
+      'Wealth management, endowment stewardship, or multi-generational planning',
+      'Preservation or documentation of important knowledge, culture, or systems',
+      'Advisory roles where wisdom and judgment compound over long relationships',
+    ],
+    traits: [
+      { label: 'Thinking', value: 'Long-term' },
+      { label: 'Strength', value: 'Compounding' },
+      { label: 'Risk', value: 'Too slow to act' },
+      { label: 'Pace', value: 'Deliberate' },
+    ],
+    action: [
+      'Write down the three things you\'ve learned that took you a decade to understand — package one as a product or service',
+      'Identify the relationship in your life that most deserves more investment — give it intentional time this month',
+      'Ask yourself: if I were 80, looking back, what would I wish I\'d started 10 years earlier? Start it today',
+      'Pair with a Catalyst who can help you communicate the value of your depth to the people who need it',
+    ],
+    scoreBars: [
+      { label: 'Systems', pct: 65, color: '#4A8D9C' },
+      { label: 'Execution', pct: 40, color: '#34C77B' },
+      { label: 'People', pct: 60, color: '#8B72BE' },
+      { label: 'Discovery', pct: 70, color: '#C8A84B' },
+      { label: 'Depth', pct: 95, color: '#8EB5D5' },
+    ],
+  }
+};
+
+// ══════════════════════════════════════════════════════════════
+// STATE
+// ══════════════════════════════════════════════════════════════
+let currentQ  = 0;
+let answers   = [];   // index of selected option per question
+let scores    = { AR: 0, OP: 0, CA: 0, EX: 0, ST: 0 };
+
+function startQuiz() {
+  currentQ = 0;
+  answers  = new Array(QUESTIONS.length).fill(null);
+  scores   = { AR: 0, OP: 0, CA: 0, EX: 0, ST: 0 };
+  showScreen('screen-quiz');
+  renderQuestion();
+}
+
+function renderQuestion() {
+  const q   = QUESTIONS[currentQ];
+  const pct = Math.round((currentQ / QUESTIONS.length) * 100);
+
+  document.getElementById('q-label').textContent  = `Question ${currentQ + 1} of ${QUESTIONS.length}`;
+  document.getElementById('q-pct').textContent    = pct + '%';
+  document.getElementById('progress-fill').style.width = pct + '%';
+  document.getElementById('q-num').textContent    = String(currentQ + 1).padStart(2, '0');
+  document.getElementById('q-text').textContent   = q.text;
+
+  const sel = answers[currentQ];
+  document.getElementById('q-options').innerHTML = q.options.map((opt, i) => `
+    <button class="option${sel === i ? ' selected' : ''}" onclick="selectOption(${i})">
+      ${opt.text}
+    </button>
+  `).join('');
+
+  const nextBtn = document.getElementById('btn-next');
+  if (sel !== null) {
+    nextBtn.style.opacity = '1';
+    nextBtn.style.pointerEvents = 'auto';
+    nextBtn.textContent = currentQ === QUESTIONS.length - 1 ? 'See My Result →' : 'Next →';
+  } else {
+    nextBtn.style.opacity = '0.4';
+    nextBtn.style.pointerEvents = 'none';
+  }
+
+  document.getElementById('btn-back').style.visibility = currentQ === 0 ? 'hidden' : 'visible';
+}
+
+function selectOption(idx) {
+  answers[currentQ] = idx;
+  renderQuestion();
+}
+
+function goNext() {
+  if (answers[currentQ] === null) return;
+
+  // Apply scores for current answer
+  const q   = QUESTIONS[currentQ];
+  const opt = q.options[answers[currentQ]];
+  for (const [arch, pts] of Object.entries(opt.scores)) {
+    scores[arch] = (scores[arch] || 0) + pts;
+  }
+
+  if (currentQ < QUESTIONS.length - 1) {
+    currentQ++;
+    renderQuestion();
+  } else {
+    showScreen('screen-email');
+  }
+}
+
+function goBack() {
+  if (currentQ > 0) {
+    // Undo scores for current answer if selected
+    if (answers[currentQ] !== null) {
+      const opt = QUESTIONS[currentQ].options[answers[currentQ]];
+      for (const [arch, pts] of Object.entries(opt.scores)) scores[arch] -= pts;
+    }
+    // Undo scores for previous answer
+    if (answers[currentQ - 1] !== null) {
+      const opt = QUESTIONS[currentQ - 1].options[answers[currentQ - 1]];
+      for (const [arch, pts] of Object.entries(opt.scores)) scores[arch] -= pts;
+    }
+    currentQ--;
+    renderQuestion();
+  }
+}
+
+// ══════════════════════════════════════════════════════════════
+// EMAIL + RESULT
+// ══════════════════════════════════════════════════════════════
+function submitEmail() {
+  const email = document.getElementById('email-input').value.trim();
+  const re    = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
+
+  if (!re.test(email)) {
+    const inp = document.getElementById('email-input');
+    inp.style.borderColor = '#c0392b';
+    setTimeout(() => inp.style.borderColor = 'var(--border)', 1200);
+    return;
+  }
+
+  // Submit (non-blocking)
+  fetch('https://formspree.io/f/REPLACE_WITH_ENDPOINT', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
+    body: JSON.stringify({
+      email,
+      archetype: getTopArchetype().id,
+      scores: JSON.stringify(scores),
+      source: 'decision-tree-engine',
+      ts: new Date().toISOString(),
+    })
+  }).catch(() => {});
+
+  showResult(email);
+}
+
+function getTopArchetype() {
+  const top = Object.entries(scores).sort((a, b) => b[1] - a[1])[0][0];
+  return ARCHETYPES[top];
+}
+
+function showResult(email) {
+  const arch = getTopArchetype();
+  const card = document.getElementById('result-card');
+
+  card.className = `card ${arch.colorClass}`;
+
+  card.innerHTML = `
+    <div class="result-header">
+      <span class="result-badge">${arch.icon} Your Archetype</span>
+      <div class="archetype-name">${arch.name}</div>
+      <div class="archetype-tagline">${arch.tagline}</div>
+    </div>
+
+    <div class="result-section">
+      <h4>Your Profile</h4>
+      <p>${arch.description.split('\n\n')[0]}</p>
+    </div>
+
+    <div class="result-section">
+      <h4>The Shadow Side</h4>
+      <p>${arch.description.split('\n\n')[1]}</p>
+    </div>
+
+    <div class="result-section">
+      <h4>Your Dimension Profile</h4>
+      <div class="score-bars">
+        ${arch.scoreBars.map(bar => `
+          <div class="score-row">
+            <span class="score-label">${bar.label}</span>
+            <div class="score-track">
+              <div class="score-bar-fill" style="width:${bar.pct}%;background:${bar.color}"></div>
+            </div>
+            <span class="score-val">${bar.pct}%</span>
+          </div>
+        `).join('')}
+      </div>
+    </div>
+
+    <div class="result-section">
+      <h4>Your Highest-Leverage Paths</h4>
+      <ul class="paths-list">
+        ${arch.paths.map(p => `<li>${p}</li>`).join('')}
+      </ul>
+    </div>
+
+    <div class="result-section">
+      <h4>Core Traits</h4>
+      <div class="traits-grid">
+        ${arch.traits.map(t => `<div class="trait-pill"><span>${t.value}</span>${t.label}</div>`).join('')}
+      </div>
+    </div>
+
+    <div class="result-section">
+      <div class="action-plan">
+        <h4>Your 30-Day Action Plan</h4>
+        <ol>
+          ${arch.action.map(a => `<li>${a}</li>`).join('')}
+        </ol>
+      </div>
+    </div>
+  `;
+
+  showScreen('screen-result');
+}
+
+function restartQuiz() {
+  currentQ = 0;
+  answers  = new Array(QUESTIONS.length).fill(null);
+  scores   = { AR: 0, OP: 0, CA: 0, EX: 0, ST: 0 };
+  showScreen('screen-intro');
+}
+
+function showScreen(id) {
+  document.querySelectorAll('#screen-intro,#screen-quiz,#screen-result,#screen-email')
+    .forEach(el => el.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  window.scrollTo(0, 0);
+}
+</script>
+</body>
+</html>
